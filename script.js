@@ -3,10 +3,15 @@ const boardEl = document.getElementById("board");
 const statusEl = document.getElementById("status");
 const restartBtn = document.getElementById("restartBtn");
 const winLineEl = document.getElementById("winLine");
+const starterModeEl = document.getElementById("starterMode");
+const tieModeEl = document.getElementById("tieMode");
 // --- Game state ---
 let board = Array(9).fill(""); // indices 0..8
 let currentPlayer = "X";
 let gameOver = false;
+let starterThisGame = "X";   // who started the current game
+let lastStarter = "X";       // who started the previous completed/aborted game
+let lastResult = null;       // "X", "O", "draw", "reset"
 
 const WIN_LINES = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
@@ -37,14 +42,13 @@ function init() {
     boardEl.appendChild(btn);
   }
 
-  restartBtn.addEventListener("click", resetGame);
+  restartBtn.addEventListener("click", () => requestRestart(true));
   window.addEventListener("keydown", onKeyDown);
 
   resetGame();
 }
 function resetGame() {
   board = Array(9).fill("");
-  currentPlayer = "X";
   gameOver = false;
   clearWinningEffects();
 
@@ -55,7 +59,8 @@ function resetGame() {
     c.disabled = false;
     c.classList.remove("win", "xMark", "oMark");
   });
-
+  currentPlayer = computeNextStarter();
+  starterThisGame = currentPlayer;
   updateStatus(`Turn: ${currentPlayer}`);
 }
 
@@ -77,6 +82,7 @@ function onCellClick(e) {
   const winLine = getWinningLine(board);
   if (winLine) {
   const winner = board[winLine[0]];
+  recordGameOutcome(winner);
   gameOver = true;
 
   updateStatus(`${winner} wins!`);
@@ -91,6 +97,7 @@ function onCellClick(e) {
   }
 
   if (isDraw(board)) {
+    recordGameOutcome("draw");
     gameOver = true;
     updateStatus("Draw!");
     setTimeout(() => alert("Draw!"), 50);
@@ -108,8 +115,8 @@ function onKeyDown(e) {
 
   // R = restart
   if (key === "r") {
-    resetGame();
-    return;
+  requestRestart(true);
+  return;
   }
 
   // 1..9 = place mark in that cell
@@ -209,5 +216,54 @@ function setWinLineColor(winner) {
   winLineEl.classList.remove("xWin", "oWin");
   winLineEl.classList.add(winner === "O" ? "oWin" : "xWin");
 }
+function opposite(p) {
+  return p === "X" ? "O" : "X";
+}
+
+function tieBreakStarter() {
+  const t = tieModeEl.value;
+  if (t === "x") return "X";
+  if (t === "o") return "O";
+  if (t === "switch") return opposite(lastStarter || "X");
+  // "same"
+  return lastStarter || "X";
+}
+
+function computeNextStarter() {
+  const mode = starterModeEl.value;
+  if (lastResult === null) return "X";
+  if (mode === "x") return "X";
+  if (mode === "o") return "O";
+
+  if (mode === "alt") {
+    return opposite(lastStarter || "X");
+  }
+
+  // winner/loser depend on lastResult; ties/resets use tie-break rules
+  const lastWasWin = lastResult === "X" || lastResult === "O";
+  if (!lastWasWin) return tieBreakStarter();
+
+  if (mode === "winner") return lastResult;           // winner starts next
+  if (mode === "loser") return opposite(lastResult);  // loser starts next
+
+  return "X";
+}
+
+function recordGameOutcome(outcome) {
+  // outcome: "X" | "O" | "draw" | "reset"
+  lastStarter = starterThisGame;
+  lastResult = outcome;
+}
 // Start
 init();
+
+function requestRestart(userInitiated = true) {
+  const anyMoves = board.some(v => v !== "");
+
+  // If user restarts mid-game, record it as "reset"
+  if (!gameOver && anyMoves && userInitiated) {
+    recordGameOutcome("reset");
+  }
+
+  resetGame();
+}

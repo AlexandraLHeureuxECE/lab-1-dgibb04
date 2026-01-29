@@ -19,6 +19,27 @@
     </div>
 
     <div class="controls">
+      <div class="selectGroup">
+        <label for="starterMode">Next game starter</label>
+        <select id="starterMode">
+        <option value="x" selected>X goes first</option>
+        <option value="o">O goes first</option>
+        <option value="alt">Alternating</option>
+        <option value="winner">Winner goes first</option>
+        <option value="loser">Loser goes first</option>
+        </select>
+      </div>
+
+      <div class="selectGroup">
+        <label for="tieMode">On tie / reset</label>
+        <select id="tieMode">
+        <option value="same" selected>Same player goes</option>
+        <option value="switch">Switch who goes first</option>
+        <option value="x">Tie/Reset → X</option>
+        <option value="o">Tie/Reset → O</option>
+        </select>
+      </div>
+
       <button id="restartBtn" type="button">Restart <span class="kbdHint">(R)</span></button>
     </div>
   </main>
