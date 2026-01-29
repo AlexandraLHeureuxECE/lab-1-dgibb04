@@ -126,3 +126,23 @@ button:hover {
 .hidden {
   display: none;
 }
+
+/* Mark colors */
+.cell.xMark {
+  color: #f2f4ff; /* keep X white */
+}
+
+.cell.oMark {
+  color: #e14b57; /* red O */
+}
+
+/* Win line color based on winner */
+.winLine.xWin {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.winLine.oWin {
+  background: rgba(225, 75, 87, 0.9);
+  box-shadow: 0 0 12px rgba(225, 75, 87, 0.45);
+}

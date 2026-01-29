@@ -53,7 +53,7 @@ function resetGame() {
   cells.forEach((c) => {
     c.textContent = "";
     c.disabled = false;
-    c.classList.remove("win");
+    c.classList.remove("win", "xMark", "oMark");
   });
 
   updateStatus(`Turn: ${currentPlayer}`);
@@ -71,6 +71,7 @@ function onCellClick(e) {
   board[idx] = currentPlayer;
   e.currentTarget.textContent = currentPlayer;
   e.currentTarget.disabled = true;
+  e.currentTarget.classList.add(currentPlayer === "X" ? "xMark" : "oMark");
 
   // Check win/draw
   const winLine = getWinningLine(board);
@@ -80,6 +81,7 @@ function onCellClick(e) {
 
   updateStatus(`${winner} wins!`);
   highlightWinningCells(winLine);
+  setWinLineColor(winner);
   drawWinLine(winLine);
   disableAllCells();
 
@@ -146,10 +148,12 @@ function clearWinningEffects() {
   // hide line
   if (winLineEl) {
     winLineEl.classList.add("hidden");
+    winLineEl.classList.remove("xWin", "oWin");
     winLineEl.style.width = "0px";
     winLineEl.style.left = "0px";
     winLineEl.style.top = "0px";
     winLineEl.style.transform = "translateY(-50%) rotate(0deg)";
+    
   }
 }
 
@@ -200,6 +204,10 @@ function getCells() {
 function updateStatus(text) {
   statusEl.textContent = text;
 }
-
+function setWinLineColor(winner) {
+  if (!winLineEl) return;
+  winLineEl.classList.remove("xWin", "oWin");
+  winLineEl.classList.add(winner === "O" ? "oWin" : "xWin");
+}
 // Start
 init();
