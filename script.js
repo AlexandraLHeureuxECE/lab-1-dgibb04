@@ -15,8 +15,10 @@ const WIN_LINES = [
 ];
 
 function init() {
+  // Remove only existing cells (keep winLine overlay in the board)
+  boardEl.querySelectorAll(".cell").forEach(c => c.remove());
+
   // Create 9 buttons once
-  boardEl.innerHTML = "";
   for (let i = 0; i < 9; i++) {
     const btn = document.createElement("button");
     btn.className = "cell";
@@ -25,11 +27,13 @@ function init() {
     btn.setAttribute("role", "gridcell");
     btn.setAttribute("aria-label", `Cell ${i + 1}`);
     btn.addEventListener("click", onCellClick);
-    // small bottom-right key label (1..9)
+
+    // bottom-right key label (1..9)
     const keyLabel = document.createElement("span");
     keyLabel.className = "cellKey";
     keyLabel.textContent = String(i + 1);
     btn.appendChild(keyLabel);
+
     boardEl.appendChild(btn);
   }
 
@@ -38,7 +42,6 @@ function init() {
 
   resetGame();
 }
-
 function resetGame() {
   board = Array(9).fill("");
   currentPlayer = "X";
@@ -88,6 +91,7 @@ function onCellClick(e) {
   if (isDraw(board)) {
     gameOver = true;
     updateStatus("Draw!");
+    setTimeout(() => alert("Draw!"), 50);
     return;
   }
 
@@ -145,7 +149,7 @@ function clearWinningEffects() {
     winLineEl.style.width = "0px";
     winLineEl.style.left = "0px";
     winLineEl.style.top = "0px";
-    winLineEl.style.transform = "rotate(0deg)";
+    winLineEl.style.transform = "translateY(-50%) rotate(0deg)";
   }
 }
 
@@ -178,7 +182,7 @@ function drawWinLine(indices) {
   winLineEl.style.left = `${sx}px`;
   winLineEl.style.top = `${sy}px`;
   winLineEl.style.width = `${length}px`;
-  winLineEl.style.transform = `rotate(${angleDeg}deg)`;
+  winLineEl.style.transform = `translateY(-50%) rotate(${angleDeg}deg)`;
 }
 
 function isDraw(b) {
