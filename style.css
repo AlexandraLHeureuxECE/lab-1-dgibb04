@@ -58,6 +58,7 @@ body {
   opacity: 0.65;
   font-weight: 700;
   pointer-events: none;
+  color: #f2f4ff; /* keep numbers white always */
 }
 
 .cell:disabled {
