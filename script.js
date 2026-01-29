@@ -2,7 +2,7 @@
 const boardEl = document.getElementById("board");
 const statusEl = document.getElementById("status");
 const restartBtn = document.getElementById("restartBtn");
-
+const winLineEl = document.getElementById("winLine");
 // --- Game state ---
 let board = Array(9).fill(""); // indices 0..8
 let currentPlayer = "X";
@@ -43,12 +43,14 @@ function resetGame() {
   board = Array(9).fill("");
   currentPlayer = "X";
   gameOver = false;
+  clearWinningEffects();
 
   // Clear UI
   const cells = getCells();
   cells.forEach((c) => {
     c.textContent = "";
     c.disabled = false;
+    c.classList.remove("win");
   });
 
   updateStatus(`Turn: ${currentPlayer}`);
@@ -68,12 +70,19 @@ function onCellClick(e) {
   e.currentTarget.disabled = true;
 
   // Check win/draw
-  const winner = getWinner(board);
-  if (winner) {
-    gameOver = true;
-    updateStatus(`${winner} wins!`);
-    disableAllCells();
-    return;
+  const winLine = getWinningLine(board);
+  if (winLine) {
+  const winner = board[winLine[0]];
+  gameOver = true;
+
+  updateStatus(`${winner} wins!`);
+  highlightWinningCells(winLine);
+  drawWinLine(winLine);
+  disableAllCells();
+
+  // Let the UI update before the blocking alert shows
+  setTimeout(() => alert(`${winner} wins!`), 50);
+  return;
   }
 
   if (isDraw(board)) {
@@ -112,11 +121,64 @@ function onKeyDown(e) {
   }
 }
 
-function getWinner(b) {
-  for (const [a, c, d] of WIN_LINES) {
-    if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
+function getWinningLine(b) {
+  for (const line of WIN_LINES) {
+    const [a, c, d] = line;
+    if (b[a] && b[a] === b[c] && b[a] === b[d]) return line;
   }
   return null;
+}
+function highlightWinningCells(indices) {
+  indices.forEach((i) => {
+    const cellBtn = boardEl.querySelector(`.cell[data-index="${i}"]`);
+    if (cellBtn) cellBtn.classList.add("win");
+  });
+}
+
+function clearWinningEffects() {
+  // remove cell highlights
+  boardEl.querySelectorAll(".cell.win").forEach((c) => c.classList.remove("win"));
+
+  // hide line
+  if (winLineEl) {
+    winLineEl.classList.add("hidden");
+    winLineEl.style.width = "0px";
+    winLineEl.style.left = "0px";
+    winLineEl.style.top = "0px";
+    winLineEl.style.transform = "rotate(0deg)";
+  }
+}
+
+function drawWinLine(indices) {
+  if (!winLineEl) return;
+
+  const startIdx = indices[0];
+  const endIdx = indices[2];
+
+  const startCell = boardEl.querySelector(`.cell[data-index="${startIdx}"]`);
+  const endCell = boardEl.querySelector(`.cell[data-index="${endIdx}"]`);
+  if (!startCell || !endCell) return;
+
+  const boardRect = boardEl.getBoundingClientRect();
+  const sRect = startCell.getBoundingClientRect();
+  const eRect = endCell.getBoundingClientRect();
+
+  // center points relative to the board
+  const sx = (sRect.left + sRect.right) / 2 - boardRect.left;
+  const sy = (sRect.top + sRect.bottom) / 2 - boardRect.top;
+  const ex = (eRect.left + eRect.right) / 2 - boardRect.left;
+  const ey = (eRect.top + eRect.bottom) / 2 - boardRect.top;
+
+  const dx = ex - sx;
+  const dy = ey - sy;
+  const length = Math.hypot(dx, dy);
+  const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI);
+
+  winLineEl.classList.remove("hidden");
+  winLineEl.style.left = `${sx}px`;
+  winLineEl.style.top = `${sy}px`;
+  winLineEl.style.width = `${length}px`;
+  winLineEl.style.transform = `rotate(${angleDeg}deg)`;
 }
 
 function isDraw(b) {

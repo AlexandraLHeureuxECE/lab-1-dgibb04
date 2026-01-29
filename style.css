@@ -99,3 +99,30 @@ button:hover {
   font-weight: 700;
   pointer-events: none;
 }
+
+/* Board needs relative positioning so the win line can be absolutely positioned */
+.board {
+  position: relative;
+}
+
+/* Winning cells: subtle highlight */
+.cell.win {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Line drawn across the winning 3 */
+.winLine {
+  position: absolute;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+  transform-origin: 0% 50%;
+  z-index: 5; /* above cells */
+  pointer-events: none;
+}
+
+.hidden {
+  display: none;
+}
