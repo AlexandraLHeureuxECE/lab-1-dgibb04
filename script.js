@@ -25,10 +25,16 @@ function init() {
     btn.setAttribute("role", "gridcell");
     btn.setAttribute("aria-label", `Cell ${i + 1}`);
     btn.addEventListener("click", onCellClick);
+    // small bottom-right key label (1..9)
+    const keyLabel = document.createElement("span");
+    keyLabel.className = "cellKey";
+    keyLabel.textContent = String(i + 1);
+    btn.appendChild(keyLabel);
     boardEl.appendChild(btn);
   }
 
   restartBtn.addEventListener("click", resetGame);
+  window.addEventListener("keydown", onKeyDown);
 
   resetGame();
 }
@@ -79,6 +85,31 @@ function onCellClick(e) {
   // Next turn
   currentPlayer = currentPlayer === "X" ? "O" : "X";
   updateStatus(`Turn: ${currentPlayer}`);
+}
+function onKeyDown(e) {
+  if (!e.key) return;
+
+  const key = e.key.toLowerCase();
+
+  // R = restart
+  if (key === "r") {
+    resetGame();
+    return;
+  }
+
+  // 1..9 = place mark in that cell
+  if (key >= "1" && key <= "9") {
+    if (gameOver) return;
+
+    const idx = Number(key) - 1; // 1->0, 9->8
+
+    // If cell already taken, ignore
+    if (board[idx] !== "") return;
+
+    // Trigger the same logic as a click, without duplicating code
+    const cellBtn = boardEl.querySelector(`.cell[data-index="${idx}"]`);
+    if (cellBtn) cellBtn.click();
+  }
 }
 
 function getWinner(b) {

@@ -71,3 +71,31 @@ button {
 button:hover {
   background: rgba(255,255,255,0.16);
 }
+
+.kbdHint {
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+/* optional hint text under status */
+.hint {
+  margin: -8px 0 14px;
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+/* allow positioning the key label inside each cell */
+.cell {
+  position: relative;
+}
+
+/* bottom-right number label inside each square */
+.cellKey {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 12px;
+  opacity: 0.65;
+  font-weight: 700;
+  pointer-events: none;
+}
