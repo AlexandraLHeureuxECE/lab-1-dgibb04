@@ -31,13 +31,10 @@ function init() {
     btn.dataset.index = String(i);
     btn.setAttribute("role", "gridcell");
     btn.setAttribute("aria-label", `Cell ${i + 1}`);
+    btn.setAttribute("data-key", String(i + 1));
     btn.addEventListener("click", onCellClick);
 
-    // bottom-right key label (1..9)
-    const keyLabel = document.createElement("span");
-    keyLabel.className = "cellKey";
-    keyLabel.textContent = String(i + 1);
-    btn.appendChild(keyLabel);
+    
 
     boardEl.appendChild(btn);
   }
